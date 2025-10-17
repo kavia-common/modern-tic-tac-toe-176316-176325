@@ -1,6 +1,48 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Board from './components/Board.jsx';
 
+// Small inline SVGs used in status/labels as well
+function KnightMini({ title = 'Knight', color = 'currentColor' }) {
+  return (
+    <svg
+      className="icon inline-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+      width="1em"
+      height="1em"
+      role="img"
+    >
+      <title>{title}</title>
+      <path
+        d="M6 20h12v-2.5c0-1.7-1.3-3-3-3h-1.4l1.3-3.2c.2-.5.1-1.1-.3-1.5l-3-3c-.4-.4-1-.5-1.5-.3L6 8.6V7c0-.6.4-1 1-1h3l2-2-1.2-1.2C10.2 1.2 7 2.9 7 5.5V7l-1.8.9C4.5 8.3 4 9.1 4 9.9v1.1c0 .7.4 1.4 1 1.8l2 .9V20Z"
+        fill={color}
+      />
+      <path d="M8 20v-3.5c0-.8.7-1.5 1.5-1.5H12" fill="none" stroke={color} strokeWidth="1.2" />
+    </svg>
+  );
+}
+function QueenMini({ title = 'Queen', color = 'currentColor' }) {
+  return (
+    <svg
+      className="icon inline-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+      width="1em"
+      height="1em"
+      role="img"
+    >
+      <title>{title}</title>
+      <path d="M6 18h12l-1.2-6-2.6 2-2.2-5-2.2 5-2.6-2L6 18Z" fill={color} />
+      <circle cx="5" cy="7" r="1.2" fill={color} />
+      <circle cx="12" cy="5.5" r="1.2" fill={color} />
+      <circle cx="19" cy="7" r="1.2" fill={color} />
+      <rect x="7" y="19" width="10" height="2" rx="0.8" fill={color} />
+    </svg>
+  );
+}
+
 // Utility to check for winner and winning line
 function calculateWinner(squares) {
   const lines = [
@@ -119,14 +161,34 @@ export default function App() {
     setGameOver(false);
   };
 
-  const statusMessage = useMemo(() => {
+  const statusNode = useMemo(() => {
     if (winner) {
-      return `Player ${winner} wins!`;
+      return (
+        <>
+          <span className="sr-only">Player {winner} wins!</span>
+          <span className="status-icon" aria-hidden="true">
+            {winner === 'X' ? <KnightMini color="var(--color-primary)" /> : <QueenMini color="var(--color-primary)" />}
+          </span>
+          <span> Player {winner} wins!</span>
+        </>
+      );
     }
     if (isDraw) {
-      return "It's a draw!";
+      return <>It's a draw!</>;
     }
-    return `Player ${currentPlayer}'s turn`;
+    return (
+      <>
+        <span className="sr-only">Player {currentPlayer}'s turn</span>
+        <span className="status-icon" aria-hidden="true">
+          {currentPlayer === 'X' ? (
+            <KnightMini color="var(--color-primary)" />
+          ) : (
+            <QueenMini color="var(--color-primary)" />
+          )}
+        </span>
+        <span> Player {currentPlayer}'s turn</span>
+      </>
+    );
   }, [winner, isDraw, currentPlayer]);
 
   return (
@@ -147,10 +209,15 @@ export default function App() {
         <section className="game-card" aria-label="Tic Tac Toe Game">
           <div className="status-row" aria-live="polite">
             <p className={`status ${winner ? 'status-win' : isDraw ? 'status-draw' : ''}`}>
-              {statusMessage}
+              {statusNode}
             </p>
             {winningLine.length > 0 && (
-              <p className="status-sub">Winning line: {winningLine.join(' - ')}</p>
+              <p className="status-sub">
+                Winning line: {winningLine.join(' - ')}{' '}
+                <span className="status-icon" aria-hidden="true" title="Winning mark">
+                  {winner === 'X' ? <KnightMini color="var(--color-secondary)" /> : <QueenMini color="var(--color-secondary)" />}
+                </span>
+              </p>
             )}
           </div>
 
